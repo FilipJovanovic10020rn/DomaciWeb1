@@ -1,6 +1,7 @@
 package org.example;
 
 import org.example.model.Student;
+import org.example.model.StudentThreadIndex;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -8,7 +9,7 @@ import java.util.concurrent.*;
 public class Main {
 
     public static volatile CyclicBarrier professorBarrier = new CyclicBarrier(2);
-    public static volatile BlockingQueue<Integer> blockingQueueAsistant = new LinkedBlockingQueue<>();
+    public static volatile BlockingQueue<StudentThreadIndex> blockingQueueAsistant = new LinkedBlockingQueue<>();
     public static volatile List<Student> students = new ArrayList<>();
 
     public static void main(String[] args) throws InterruptedException {
@@ -33,6 +34,8 @@ public class Main {
             students.add(new Student("Student"+i, arrivalTime, random.nextDouble() * 0.5 + 0.5));
         }
 
+        ExecutorService studentThreadPool = Executors.newFixedThreadPool(studentNumber);
+
         // sort students with arrival time
         Collections.sort(students);
 
@@ -43,13 +46,13 @@ public class Main {
         asistantThread.start();
 
         // start the clock
-        Timer timer = new Timer(students,studentNumber, professorThreadPool, professorBarrier);
+        Timer timer = new Timer(students,studentThreadPool,studentNumber, professorThreadPool, professorBarrier, asistantThread);
         timer.startDefence();
 
         // stop the professor and assistant threads - time passed
 
-        asistantThread.interrupt();
-        professorThreadPool.shutdownNow();
+//        asistantThread.interrupt();
+//        professorThreadPool.shutdownNow();
 
 
         // calculate the average grade of all passing students

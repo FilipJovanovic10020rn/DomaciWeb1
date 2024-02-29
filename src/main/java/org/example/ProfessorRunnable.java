@@ -11,11 +11,15 @@ public class ProfessorRunnable implements Runnable{
 
     private CyclicBarrier cyclicBarrier;
     private Integer indexInteger;
+    private Thread studentThread;
+    private long startTime;
 
-    public ProfessorRunnable(CyclicBarrier cyclicBarrier, Integer indexInteger) {
+    public ProfessorRunnable(CyclicBarrier cyclicBarrier, Integer indexInteger, Thread studentThread, long currentTime) {
 
         this.cyclicBarrier = cyclicBarrier;
         this.indexInteger = indexInteger;
+        this.studentThread = studentThread;
+        this.startTime = currentTime;
     }
 
     @Override
@@ -39,8 +43,22 @@ public class ProfessorRunnable implements Runnable{
             this.cyclicBarrier.await(); // ceka drugog studenta da zavrsi pa im onda obojici use ocenu
             Main.students.set(index,student);
 
+            long finishedTime = System.currentTimeMillis();
+
+            System.out.println(
+                    "Thread: " + studentThread.getName()
+                    + " Arrival: " + Main.students.get(index).getArrivalTime()
+                    + " Prof: " + Thread.currentThread().getName()
+                    + " TTC: " + finishedTime
+                    + ": " + startTime
+                    + " Grade: " + student.getGrade());
+
 
         } catch (InterruptedException | BrokenBarrierException e) {
+            System.out.println(
+                    "Stopped: " + studentThread.getName()
+                    + " Arrival: " + startTime
+                    + " Prof: " + Thread.currentThread().getName());
 //            throw new RuntimeException("Gotove odbrane - professor");
         }
     }
